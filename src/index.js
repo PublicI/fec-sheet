@@ -104,11 +104,12 @@ function writeSheet(x,name,rows) {
 
 var app = express();
 
-app.get('/:filing_id-:committee_name.xlsx', function(req, res) {
+app.get('/:filing_id.xlsx', function(req, res) {
     filing_id = req.params.filing_id;
 
     var x = xlsx();
 
+    // res.setHeader('Content-disposition', 'attachment; filename=' + filing_id + '-' + slug(result[0][0]) + '.xlsx');
     res.setHeader('content-type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     x.pipe(res);
 
