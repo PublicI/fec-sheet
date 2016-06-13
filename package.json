@@ -1,0 +1,16 @@
+{
+  "name": "fec-sheet",
+  "version": "0.1.0",
+  "description": "Make Excel sheets out of FEC filings",
+  "main": "./src/index.js",
+  "license": "MIT",
+  "dependencies": {
+    "async": "^1.5.2",
+    "express": "^4.13.4",
+    "fec-model": "github:chriszs/fec-model",
+    "lodash": "^4.13.1",
+    "moment": "^2.13.0",
+    "numeral": "^1.5.3",
+    "xlsx-stream": "^0.1.2"
+  }
+}
