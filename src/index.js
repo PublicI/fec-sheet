@@ -97,6 +97,9 @@ function writeTransactions(x,name,filing_id,cb) {
         if (name == 'loans') {
             sortColumn = 'loan_balance';
         }
+        if (name == 'ies') {
+            sortColumn = 'expenditure_amount';
+        }
 
         var query = new QueryStream('SELECT * FROM fec_' + name +
                                     ' WHERE filing_id = $1 ORDER BY ' +
@@ -233,6 +236,8 @@ app.get('/sheet/:filing_id.xlsx', function(req, res, next) {
             writeTransactions(x,'contributions',filing_id,cb);
         },function (cb) {
             writeTransactions(x,'expenditures',filing_id,cb);
+        },function (cb) {
+            writeTransactions(x,'ies',filing_id,cb);
         },function (cb) {
             writeTransactions(x,'debts',filing_id,cb);
         },function (cb) {
