@@ -123,7 +123,7 @@ function writeTransactions(x, name, filing_id, cb) {
         var query = new QueryStream('SELECT * FROM fec_' + name +
             ' WHERE filing_id = $1 ORDER BY ' +
             sortColumn +
-            ' DESC LIMIT 1000000;', [filing_id]);
+            ' DESC LIMIT 100000;', [filing_id]);
 
         var first = true;
 
