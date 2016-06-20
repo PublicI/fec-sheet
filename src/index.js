@@ -5,7 +5,10 @@ var _ = require('lodash'),
     moment = require('moment'),
     numeral = require('numeral'),
     xlsx = require('xlsx-stream'),
-    express = require('express');
+    express = require('express'),
+    slug = require('slug'),
+    pg = require('pg'),
+    QueryStream = require('pg-query-stream');
 
 function moneyFormat(value) {
     return numeral(value).format('0,0.00');
@@ -75,12 +78,74 @@ function transactionsFormat(transactions) {
     }));
 }
 
-function getTransactions(filing_id,type,cb) {
+function writeTransactions(x,name,filing_id,cb) {
+    var conString = process.env.DB_DRIVER + '://' + process.env.DB_USER + ':' + process.env.DB_PASS +
+                    '@' + process.env.DB_HOST + ':' + process.env.DB_PORT + '/' + process.env.DB_NAME;
+
+    pg.connect(conString,function(err, client, done) {
+        if(err) throw err;
+
+        var sheet = null;
+
+        var sortColumn = name.slice(0,-1) + '_amount';
+        if (name == 'debts') {
+            sortColumn = 'balance_at_close_this_period';
+        }
+        if (name == 'loans') {
+            sortColumn = 'loan_balance';
+        }
+
+        var query = new QueryStream('SELECT * FROM fec_' + name +
+                                    ' WHERE filing_id = $1 ORDER BY ' +
+                                    sortColumn +
+                                    ' DESC LIMIT 1000000;',
+                                    [filing_id]);
+
+        var first = true;
+
+        var stream = client
+            .query(query)
+            .on('data',function (row) {
+                if (first) {
+                    sheet = x.sheet(name);
+
+                    sheet.write(_.keys(row));
+
+                    first = false;
+                }
+
+                sheet.write(_.values(row).map(function (val) {
+                    if (val === null) {
+                        return '';
+                    }
+                    return val;
+                }));
+            })
+            .on('end',function () {
+                if (sheet) {
+                    sheet.end();
+                }
+
+                done();
+
+                cb();
+            })
+            .on('error',function (err) {
+                if (sheet) {
+                    sheet.end();
+                }
+
+                done();
+
+                cb(err);
+            });
+    });
+/*
     models['fec_' + type].findAll({
         where: {
             filing_id: filing_id
         },
-        limit: 1000000,
+        limit: 10000,
         order: [[type + '_amount','DESC']]
     })
     .then(function (transactions) {
@@ -90,6 +155,18 @@ function getTransactions(filing_id,type,cb) {
         else {
             cb();
         }
+    })
+    .catch(cb);*/
+}
+
+function getFiling(filing_id,cb) {
+    models.fec_filing.findOne({
+        where: {
+            filing_id: filing_id
+        }
+    })
+    .then(function (filing) {
+        cb(null,filing);
     })
     .catch(cb);
 }
@@ -104,58 +181,71 @@ function writeSheet(x,name,rows) {
 
 var app = express();
 
-app.get('/:filing_id.xlsx', function(req, res) {
+app.get('/:filing_id.xlsx', function(req, res, next) {
     filing_id = req.params.filing_id;
 
-    var x = xlsx();
+    getFiling(filing_id,function (err,filing) {
+        if (err || filing === null) {
+            next(err);
+            return;
+        }
 
-    // res.setHeader('Content-disposition', 'attachment; filename=' + filing_id + '-' + slug(result[0][0]) + '.xlsx');
-    res.setHeader('content-type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    x.pipe(res);
+        var x = xlsx();
 
-    async.waterfall([function (cb) {
-        getSummary(filing_id,'presidential',function (err,result) {
-            if (err) throw err;
+        async.waterfall([function (cb) {
+            getSummary(filing_id,'presidential',function (err,result) {
+                if (err) {
+                    cb(err);
+                    return;
+                }
 
-            if (typeof result != 'undefined' && result) {
-                writeSheet(x,'summary',result);
+                if (typeof result != 'undefined' && result) {
+                    res.setHeader('Content-disposition', 'attachment; filename=' + filing_id + '-' + slug(result[0][0]) + '.xlsx');
+                    // res.setHeader('content-type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+                    x.pipe(res);
+
+                    writeSheet(x,'summary',result);
+                }
+
+                cb();
+            });
+        },function (cb) {
+            getSummary(filing_id,'pac',function (err,result) {
+                if (err) {
+                    cb(err);
+                    return;
+                }
+
+                if (typeof result != 'undefined' && result) {
+                    res.setHeader('Content-disposition', 'attachment; filename=' + filing_id + '-' + slug(result[0][0]) + '.xlsx');
+                    // res.setHeader('content-type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+                    x.pipe(res);
+                    
+                    writeSheet(x,'summary',result);
+                }
+
+                cb();
+            });
+        },function (cb) {
+            writeTransactions(x,'contributions',filing_id,cb);
+        },function (cb) {
+            writeTransactions(x,'expenditures',filing_id,cb);
+        },function (cb) {
+            writeTransactions(x,'debts',filing_id,cb);
+        },function (cb) {
+            writeTransactions(x,'loans',filing_id,cb);
+        }],function (err) {
+            if (err) {
+                next(err);
             }
 
-            cb();
+            x.finalize();
         });
-    },function (cb) {
-        getSummary(filing_id,'pac',function (err,result) {
-            if (err) throw err;
-
-            if (typeof result != 'undefined' && result) {
-                writeSheet(x,'summary',result);
-            }
-
-            cb();
-        });
-    },function (cb) {
-        getTransactions(filing_id,'contribution',function (err,result) {
-            if (err) throw err;
-
-            if (typeof result != 'undefined' && result) {
-                writeSheet(x,'contributions',result);
-            }
-
-            cb();
-        });
-    },function (cb) {
-        getTransactions(filing_id,'expenditure',function (err,result) {
-            if (err) throw err;
-
-            if (typeof result != 'undefined' && result) {
-                writeSheet(x,'expenditures',result);
-            }
-
-            cb();
-        });
-    }],function () {
-        x.finalize();
     });
+});
+
+app.use(function(req, res, next){
+    res.status(404).send('Filing not available yet');
 });
 
 app.listen(8080);

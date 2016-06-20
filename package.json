@@ -11,6 +11,8 @@
     "lodash": "^4.13.1",
     "moment": "^2.13.0",
     "numeral": "^1.5.3",
+    "pg-query-stream": "^1.0.0",
+    "slug": "^0.9.1",
     "xlsx-stream": "^0.1.2"
   }
 }
