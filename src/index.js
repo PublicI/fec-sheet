@@ -27,7 +27,7 @@ function moneyFormat(val) {
 }
 
 function dateFormat(date) {
-    return moment(date.coverage_from_date).format('M/D/YYYY');
+    return moment(date).format('M/D/YYYY');
 }
 
 function summaryFormat(filing_id, row, type) {
