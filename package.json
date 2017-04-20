@@ -14,5 +14,8 @@
     "pg-query-stream": "^1.0.0",
     "slug": "^0.9.1",
     "xlsx-stream": "github:sutoiku/node-xlsx-stream#Custom_properties"
+  },
+  "scripts": {
+    "start": "node src/index.js"
   }
 }
