@@ -211,7 +211,7 @@ function writeSheet(x, name, rows) {
 
 var app = express();
 
-app.get('/sheet/:filing_id.xlsx', function(req, res, next) {
+app.get('/:filing_id.xlsx', function(req, res, next) {
     filing_id = req.params.filing_id;
 
     getFiling(filing_id, function(err, filing) {
