@@ -280,4 +280,4 @@ app.use(function(req, res, next) {
     res.status(404).send('Filing not available yet');
 });
 
-app.listen(process.env.SERVER_PORT || 8080);
+app.listen(process.env.PORT || 8080);
