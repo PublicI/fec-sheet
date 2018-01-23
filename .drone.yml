@@ -1,0 +1,25 @@
+pipeline:
+  build:
+    image: node:6
+    commands:
+      - yarn
+
+  gcr:
+    image: plugins/gcr
+    repo: project/foo
+    tags: latest
+    secrets: [google_credentials]
+
+  helm_deploy:
+      image: quay.io/ipedrazas/drone-helm
+      skip_tls_verify: true
+      chart: ./charts/javascript
+      release: ${DRONE_BRANCH}
+      values: secret.password=${SECRET_PASSWORD},image.tag=${TAG}
+      prefix: STAGING
+      namespace: development
+
+  notify:
+    image: plugins/slack
+    channel: data-alerts
+    username: drone
