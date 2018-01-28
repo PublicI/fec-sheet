@@ -1,7 +1,0 @@
-[environments]
-  [environments.development]
-    name = "fec-sheet"
-    namespace = "default"
-    wait = false
-    watch = false
-    watch_delay = 2
