@@ -1,0 +1,11 @@
+[environments]
+  [environments.development]
+    name = "fec-sheet"
+    namespace = "fec-sheet"
+    wait = true
+    watch = false
+    watch-delay = 2
+    auto-connect = false
+    dockerfile = "Dockerfile"
+    chart = ""
+    set = ["db.user=","db.pass=","db.host=","db.name="]

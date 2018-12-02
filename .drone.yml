@@ -1,25 +1,21 @@
 pipeline:
-  build:
-    image: node:6
-    commands:
-      - yarn
-
   gcr:
     image: plugins/gcr
-    repo: project/foo
+    repo: festive-shield-189915/fec-sheet
     tags: latest
-    secrets: [google_credentials]
+    secrets: [ google_credentials ]
 
   helm_deploy:
-      image: quay.io/ipedrazas/drone-helm
-      skip_tls_verify: true
-      chart: ./charts/javascript
-      release: ${DRONE_BRANCH}
-      values: secret.password=${SECRET_PASSWORD},image.tag=${TAG}
-      prefix: STAGING
-      namespace: development
+    image: quay.io/ipedrazas/drone-helm
+    chart: ./charts/fec-sheet
+    release: fec-sheet
+    values: db.user=${DB_USER},db.pass=${DB_PASS},db.host=${DB_HOST},db.name=${DB_NAME}
+    prefix: 
+    namespace: fec-sheet
+    secrets: [ api_server, kubernetes_token, db_user, db_pass, db_host, db_name ]
 
-  notify:
+  slack:
     image: plugins/slack
-    channel: data-alerts
-    username: drone
+    secrets: [ slack_webhook ]
+    when:
+      status: [ success, failure ]
