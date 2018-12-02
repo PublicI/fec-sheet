@@ -292,6 +292,29 @@ app.get('/:filing_id.xlsx', (req, res, next) => {
                         cb();
                     });
                 },
+                cb => {
+                    getSummary(filing_id, 'campaign', (err, result) => {
+                        if (err) {
+                            cb(err);
+                            return;
+                        }
+
+                        if (typeof result != 'undefined' && result) {
+                            res.setHeader(
+                                'Content-disposition',
+                                `attachment; filename=${filing_id}-${slug(
+                                    result[0][0]
+                                )}.xlsx`
+                            );
+                            // res.setHeader('content-type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+                            x.pipe(res);
+
+                            writeSheet(x, 'summary', result);
+                        }
+
+                        cb();
+                    });
+                },
                 cb => writeTransactions(x, 'contributions', filing_id, cb),
                 cb => writeTransactions(x, 'expenditures', filing_id, cb),
                 cb => writeTransactions(x, 'ies', filing_id, cb),
