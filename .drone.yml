@@ -3,15 +3,14 @@ pipeline:
     image: plugins/gcr
     repo: festive-shield-189915/fec-sheet
     tags: latest
-    secrets: [ google_credentials ]
 
   helm_deploy:
-    image: quay.io/ipedrazas/drone-helm
-    chart: ./charts/fec-sheet
-    release: fec-sheet
+    image: peloton/drone-helm
+    chart: ./charts/sheet
+    release: sheet
     values: db.user=${DB_USER},db.pass=${DB_PASS},db.host=${DB_HOST},db.name=${DB_NAME}
     prefix: 
-    namespace: fec-sheet
+    namespace: sheet
     secrets: [ api_server, kubernetes_token, db_user, db_pass, db_host, db_name ]
 
   slack:
