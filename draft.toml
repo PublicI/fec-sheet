@@ -1,7 +1,7 @@
 [environments]
   [environments.development]
-    name = "sheet"
-    namespace = "sheet"
+    name = "sheets"
+    namespace = "sheets"
     wait = true
     watch = false
     watch-delay = 2
