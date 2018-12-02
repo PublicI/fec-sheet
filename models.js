@@ -1,4 +1,4 @@
-var models = require('fec-model');
+const models = require('fec-model');
 
 module.exports = models({
     name: process.env.DB_NAME,
