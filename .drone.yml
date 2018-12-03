@@ -11,7 +11,7 @@ pipeline:
     values: db.user=${DB_USER},db.pass=${DB_PASS},db.host=${DB_HOST},db.name=${DB_NAME},image.repository=publicintegrity/fec-sheet,image.tag=latest
     prefix: 
     namespace: sheets
-    secrets: [ api_server, kubernetes_token, db_user, db_pass, db_host, db_name ]
+    secrets: [ api_server, kubernetes_token ]
     skip_tls_verify: true
 
   slack:
