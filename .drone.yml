@@ -5,7 +5,6 @@ pipeline:
     repo: publicintegrity/fec-sheet
 
   helm_deploy:
-    debug: true
     image: peloton/drone-helm
     chart: ./charts/fec-sheet
     release: sheets
