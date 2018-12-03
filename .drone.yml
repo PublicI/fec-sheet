@@ -6,7 +6,7 @@ pipeline:
 
   helm_deploy:
     image: peloton/drone-helm
-    chart: ./charts/sheet
+    chart: ./charts/fec-sheet
     release: sheets
     values: db.user=${DB_USER},db.pass=${DB_PASS},db.host=${DB_HOST},db.name=${DB_NAME},image.repository=publicintegrity/fec-sheet
     prefix: 
