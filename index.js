@@ -111,6 +111,7 @@ function transactionsFormat(transactions) {
 }
 
 function writeTransactions(x, name, filing_id, cb) {
+    console.log(name);
     const conString = `${process.env.DB_DRIVER}://${process.env.DB_USER}:${
         process.env.DB_PASS
     }@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`;
@@ -137,7 +138,7 @@ function writeTransactions(x, name, filing_id, cb) {
             }
 
             const query = new QueryStream(
-                `SELECT * FROM fec_${name} WHERE filing_id = $1 ORDER BY ${sortColumn} DESC LIMIT 10;`,
+                `SELECT * FROM fec_${name} WHERE filing_id = $1 ORDER BY ${sortColumn} DESC LIMIT 100000;`,
                 [filing_id]
             );
 
@@ -222,6 +223,7 @@ function getFiling(filing_id, cb) {
 }
 
 function writeSheet(x, name, rows) {
+    console.log(name);
     sheet = x.sheet(name, {
         columnsWidth: 20
     });
@@ -325,6 +327,8 @@ app.get('/:filing_id.xlsx', (req, res, next) => {
                 if (err) {
                     next(err);
                 }
+
+                console.log('finalizing');
 
                 x.finalize();
             }
