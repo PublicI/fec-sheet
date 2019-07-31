@@ -137,7 +137,7 @@ function writeTransactions(x, name, filing_id, cb) {
             }
 
             const query = new QueryStream(
-                `SELECT * FROM fec_${name} WHERE filing_id = $1 ORDER BY ${sortColumn} DESC LIMIT 100000;`,
+                `SELECT * FROM fec_${name} WHERE filing_id = $1 ORDER BY ${sortColumn} DESC LIMIT 10;`,
                 [filing_id]
             );
 
