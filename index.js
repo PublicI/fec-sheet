@@ -240,6 +240,7 @@ app.get('/:filing_id.xlsx', (req, res, next) => {
 
     getFiling(filing_id, (err, filing) => {
         if (err || filing === null) {
+            console.error(err);
             next(err);
             return;
         }
@@ -325,6 +326,7 @@ app.get('/:filing_id.xlsx', (req, res, next) => {
             ],
             err => {
                 if (err) {
+                    console.error(err);
                     next(err);
                 }
 
