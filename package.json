@@ -9,7 +9,7 @@
     "express": "^4.16.4",
     "fec-model": "github:chriszs/fec-model",
     "lodash": "^4.17.11",
-    "moment": "^2.22.2",
+    "moment": "^2.29.2",
     "numeral": "^2.0.6",
     "pg-query-stream": "^1.1.2",
     "slug": "^0.9.2",
